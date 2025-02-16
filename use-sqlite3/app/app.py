@@ -1,5 +1,5 @@
 import sqlite3
-from flask import g, Flask
+from flask import g, Flask, render_template
 
 app = Flask(__name__)
 DATABASE = './database.db'
@@ -20,12 +20,6 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
-# create an application context
-@app.route('/')
-def index():
-    cur = get_db().cursor()
-    '...'
-
 # query database - get cursor > execute query > fetch results (rows)
 def query_db(query, args=(), one=False):
     cursor = get_db().execute(query, args)
@@ -33,26 +27,32 @@ def query_db(query, args=(), one=False):
     cursor.close()
     return (rows[0] if rows else None) if one else rows
 
-# use query function and the row factory to get users from database
-def main():
-    # all results
-    for user in query_db('select * from users'):
-        print(user['username'], 'had the id', user['user_id'])
-
-    #single result
-    user = query_db('select * from users where username = ?',
-                    [the_username], one=True)
-    if user is None:
-        print('No such user')
-    else:
-        print(the_username, 'has the id', user['user_id'])
-
 # create database from schema
 def init_db():
     with app.app_context():
         db = get_db()
         with app.open_resource('schema.sql', mode='r') as schema_file:
             db.cursor().executescript(schema_file.read())
+        
+        # sample data insertion
+        data = [
+            {'user_id': 1, 'username': 'f.quintale'},
+            {'user_id': 2, 'username': 'm.binotto'}
+        ]
+        sql = "INSERT INTO 'users' (user_id, username) VALUES (?, ?);"
+        for user in data:
+            db.cursor().execute(sql, (user['user_id'], user['username']))
         db.commit()
 
-init_db()
+# create an application context
+@app.route('/')
+def index():
+    # get all users from database
+    users = query_db('SELECT * FROM users')
+    return render_template('index.html', users=users)
+
+# run the app with Docker configuration
+if __name__ == '__main__':
+    # initialize the database
+    init_db()
+    app.run(host='0.0.0.0', port=5000, debug=True)
