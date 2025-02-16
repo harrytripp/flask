@@ -1,5 +1,5 @@
 import sqlite3
-from flask import g, Flask, render_template
+from flask import g, Flask, render_template, request
 
 app = Flask(__name__)
 DATABASE = './database.db'
@@ -47,9 +47,25 @@ def init_db():
 # create an application context
 @app.route('/')
 def index():
+    return render_template('index.html')
+
+@app.route('/add', methods=['GET', 'POST'])
+def add():
+    if request.method == 'POST':
+        user_id = request.form['user_id']
+        username = request.form['username']
+        db = get_db()
+        db.cursor().execute("INSERT INTO 'users' (user_id, username) VALUES (?, ?)", [user_id, username])
+        db.commit()
+        return render_template("index.html")
+    else:
+        return render_template('add.html')
+
+@app.route('/list')
+def list():
     # get all users from database
     users = query_db('SELECT * FROM users')
-    return render_template('index.html', users=users)
+    return render_template('list.html', users=users)
 
 # run the app with Docker configuration
 if __name__ == '__main__':

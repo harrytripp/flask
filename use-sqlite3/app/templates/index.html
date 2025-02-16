@@ -1,21 +1,16 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Users Database</title>
-</head>
-<body>
-    <h1>Users List</h1>
-    <table>
-        <tr>
-            <th>User ID</th>
-            <th>Username</th>
-        </tr>
-        {% for user in users %}
-        <tr>
-            <td>{{ user['user_id'] }}</td>
-            <td>{{ user['username'] }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-</body>
+	<head>
+		<title>Flask and SQLite </title>
+	</head>
+	<body>
+		<h1>Database Management</h1>
+    	<form action="/add" style="display: inline">
+			<button type="submit">Add New Entry</button>
+		</form>
+		
+		<form action="/list" style="display: inline">
+			<button type="submit">View List</button>
+		</form>
+	</body>
 </html>
