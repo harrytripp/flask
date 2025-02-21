@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Users Database</title>
+</head>
+<body>
+    <h1>Users List</h1>
+    <table>
+        <tr>
+            <th>User ID</th>
+            <th>Username</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user['user_id'] }}</td>
+            <td>{{ user['username'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <form action="/" style="display: inline">
+        <button type="submit">Home</button>
+    </form>
+</body>
+</html>
