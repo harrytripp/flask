@@ -11,8 +11,12 @@
             <input type="title" name="title" placeholder="Title" required><br/>
             <label>Task details:</label> 
             <input type="details" name="details" placeholder="Details"><br/>
-            <lable>Priority:</lable>
-            <input type="importance" name="importance" placeholder="Low, Medium or High?"><br/>
+            <label>Priority:</label>
+            <select type="importance" name="importance">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select><br/>
             <input type = "submit" value = "submit"/><br/>
         </form>
         <form action="/" style="display: inline">
