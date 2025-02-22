@@ -5,10 +5,14 @@
     </head>
     <body>
         <form method="POST">
-            <label>Enter User ID:</label>
-            <input type="user_id" name="user_id" placeholder="Enter your User ID" required><br/>
-            <label>Enter Username:</label>
-            <input type="username" name="username" placeholder="Enter your Username" required><br/> 
+            <label>Where should it be in the list?</label>
+            <input type="order_num" name="order_num" placeholder="Order" required><br/>
+            <label>What's the task?</label>
+            <input type="title" name="title" placeholder="Title" required><br/>
+            <label>Task details:</label> 
+            <input type="details" name="details" placeholder="Details"><br/>
+            <lable>Priority:</lable>
+            <input type="importance" name="importance" placeholder="Low, Medium or High?"><br/>
             <input type = "submit" value = "submit"/><br/>
         </form>
         <form action="/" style="display: inline">

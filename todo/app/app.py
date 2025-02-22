@@ -36,12 +36,12 @@ def init_db():
         
         # sample data insertion
         data = [
-            {'user_id': 1, 'username': 'f.quintale'},
-            {'user_id': 2, 'username': 'm.binotto'}
+            {'order_num': 1, 'title': 'frah quintale lyrics', 'details': 'Un giorno ero a casa che stavo<br/>Con il culo sopra il divano<br/>Mezza canna spenta in una mano<br/>Non ricordo a cosa pensavo<br/>Mi son detto: "Giuro, ora la chiamo"<br/>Sta già con un altro e che strano/Lei perfetta, lui uno sfigato<br/>Ingessato tipo Ferragamo', 'importance': 'medium'},
+            {'order_num': 2, 'title': 'wash the car', 'details': '', 'importance': 'high'}
         ]
-        sql = "INSERT INTO 'users' (user_id, username) VALUES (?, ?);"
-        for user in data:
-            db.cursor().execute(sql, (user['user_id'], user['username']))
+        sql = "INSERT INTO 'tasks' (order_num, title, details, importance) VALUES (?, ?, ?, ?);"
+        for task in data:
+            db.cursor().execute(sql, (task['order_num'], task['title'], task['details'], task['importance'],))
         db.commit()
 
 # create an application context
@@ -52,10 +52,12 @@ def index():
 @app.route('/add', methods=['GET', 'POST'])
 def add():
     if request.method == 'POST':
-        user_id = request.form['user_id']
-        username = request.form['username']
+        order_num = request.form['order_num']
+        title = request.form['title']
+        details = request.form['details']
+        importance = request.form['importance']
         db = get_db()
-        db.cursor().execute("INSERT INTO 'users' (user_id, username) VALUES (?, ?)", [user_id, username])
+        db.cursor().execute("INSERT INTO 'tasks' (order_num, title, details, importance) VALUES (?, ?, ?, ?);", [order_num, title, details, importance])
         db.commit()
         return render_template("index.html")
     else:
@@ -64,8 +66,8 @@ def add():
 @app.route('/list')
 def list():
     # get all users from database
-    users = query_db('SELECT * FROM users')
-    return render_template('list.html', users=users)
+    tasks = query_db('SELECT * FROM tasks')
+    return render_template('list.html', tasks=tasks)
 
 # run the app with Docker configuration
 if __name__ == '__main__':

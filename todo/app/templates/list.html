@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Users Database</title>
+    <title>Task Database</title>
 </head>
 <body>
-    <h1>Users List</h1>
+    <h1>Task List</h1>
     <table>
         <tr>
-            <th>User ID</th>
-            <th>Username</th>
+            <th>ID</th>
+            <th>Order</th>
+            <th>Task</th>
+            <th>Details</th>
+            <th>Importance</th>
         </tr>
-        {% for user in users %}
+        {% for task in tasks %}
         <tr>
-            <td>{{ user['user_id'] }}</td>
-            <td>{{ user['username'] }}</td>
+            <td>{{ task['unique_id'] }}</td>
+            <td>{{ task['order_num'] }}</td>
+            <td>{{ task['title'] }}</td>
+            <td>{{ task['details'] }}</td>
+            <td>{{ task['importance'] }}</td>
         </tr>
         {% endfor %}
     </table>
