@@ -12,6 +12,7 @@
             <th>Task</th>
             <th>Details</th>
             <th>Importance</th>
+            <th>Options</th>
         </tr>
         {% for task in tasks %}
         <tr>
@@ -20,6 +21,11 @@
             <td>{{ task['title'] }}</td>
             <td>{{ task['details'] }}</td>
             <td>{{ task['importance'] }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('remove', id=task['unique_id']) }}">
+                    <button type="submit">Remove</button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </table>

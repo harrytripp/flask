@@ -1,5 +1,5 @@
 import sqlite3
-from flask import g, Flask, render_template, request
+from flask import g, Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 DATABASE = './database.db'
@@ -63,11 +63,19 @@ def add():
     else:
         return render_template('add.html')
 
-@app.route('/list')
+@app.route('/list', methods=['GET', 'POST'])
 def list():
     # get all users from database
     tasks = query_db('SELECT * FROM tasks')
     return render_template('list.html', tasks=tasks)
+
+@app.route('/delete/<int:id>', methods=['POST'])
+def remove(id):
+    db = get_db()
+    db.cursor().execute("DELETE FROM tasks WHERE unique_id = ?", [id])
+    db.commit()
+    return redirect(url_for('list'))
+    
 
 # run the app with Docker configuration
 if __name__ == '__main__':
