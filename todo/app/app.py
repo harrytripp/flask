@@ -31,8 +31,9 @@ def query_db(query, args=(), one=False):
 def init_db():
     with app.app_context():
         db = get_db()
+        cursor = db.cursor()
         with app.open_resource('schema.sql', mode='r') as schema_file:
-            db.cursor().executescript(schema_file.read())
+            cursor.executescript(schema_file.read())
         
         # sample data insertion
         data = [
@@ -41,12 +42,12 @@ def init_db():
         ]
         sql1 = "INSERT INTO 'tasks' (order_num, title, details, importance) VALUES (?, ?, ?, ?);"
         for task in data:
-            db.cursor().execute(sql1, (task['order_num'], task['title'], task['details'], task['importance'],))
+            cursor.execute(sql1, (task['order_num'], task['title'], task['details'], task['importance'],))
         db.commit()
 
         sql2 = "INSERT INTO 'completed' (title, details, importance) VALUES (?, ?, ?);"
         for task in data:
-            db.cursor().execute(sql2, (task['title'], task['details'], task['importance'],))
+            cursor.execute(sql2, (task['title'], task['details'], task['importance'],))
         db.commit()
 
 # create an application context
@@ -56,13 +57,14 @@ def index():
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
+    db = get_db()
+    cursor = db.cursor()
     if request.method == 'POST':
         order_num = request.form['order_num']
         title = request.form['title']
         details = request.form['details']
         importance = request.form['importance']
-        db = get_db()
-        db.cursor().execute("INSERT INTO 'tasks' (order_num, title, details, importance) VALUES (?, ?, ?, ?);", [order_num, title, details, importance])
+        cursor.execute("INSERT INTO 'tasks' (order_num, title, details, importance) VALUES (?, ?, ?, ?);", [order_num, title, details, importance])
         db.commit()
         return render_template("index.html")
     else:
@@ -78,22 +80,25 @@ def list():
 @app.route('/remove/<int:id>', methods=['POST'])
 def remove(id):
     db = get_db()
-    db.cursor().execute("DELETE FROM tasks WHERE unique_id = ?", [id])
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM tasks WHERE unique_id = ?", [id])
     db.commit()
     return redirect(url_for('list'))
 
 @app.route('/remove_completed/<int:id>', methods=['POST'])
 def remove_completed(id):
     db = get_db()
-    db.cursor().execute("DELETE FROM completed WHERE unique_id = ?", [id])
-    db.commit()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM completed WHERE unique_id = ?", [id])
+    cursor.commit()
     return redirect(url_for('list'))
 
 @app.route('/completed/<int:id>', methods=['POST'])
 def completed(id):
     db = get_db()
-    db.cursor().execute("INSERT INTO completed(title, details, importance) SELECT title, details, importance FROM tasks WHERE unique_id = ? ;", [id])
-    db.cursor().execute("DELETE FROM tasks WHERE unique_id = ?", [id])
+    cursor = db.cursor()
+    cursor.execute("INSERT INTO completed(title, details, importance) SELECT title, details, importance FROM tasks WHERE unique_id = ? ;", [id])
+    cursor.execute("DELETE FROM tasks WHERE unique_id = ?", [id])
     db.commit()
     return redirect(url_for('list'))
 
@@ -108,7 +113,7 @@ def restore(id):
     else:
         max_order = result[0] + 1
     cursor.execute("INSERT INTO tasks (order_num, title, details, importance) SELECT ?, title, details, importance FROM completed WHERE unique_id = ?", (max_order, id))
-    db.cursor().execute("DELETE FROM completed WHERE unique_id = ?", [id])
+    cursor.execute("DELETE FROM completed WHERE unique_id = ?", [id])
     db.commit()
     return redirect(url_for('list'))
 
