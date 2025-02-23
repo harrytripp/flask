@@ -25,6 +25,36 @@
                 <form method="POST" action="{{ url_for('remove', id=task['unique_id']) }}">
                     <button type="submit">Remove</button>
                 </form>
+                <form method="POST" action="{{ url_for('completed', id=task['unique_id']) }}">
+                    <button type="submit">Complete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h1>Completed</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Task</th>
+            <th>Details</th>
+            <th>Importance</th>
+            <th>Options</th>
+        </tr>
+        {% for task in completed %}
+        <tr>
+            <td>{{ task['unique_id'] }}</td>
+            <td>{{ task['title'] }}</td>
+            <td>{{ task['details'] }}</td>
+            <td>{{ task['importance'] }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('remove_completed', id=task['unique_id']) }}">
+                    <button type="submit">Remove</button>
+                </form>
+                <form method="POST" action="{{ url_for('restore', id=task['unique_id']) }}">
+                    <button type="submit">Restore</button>
+                </form>
             </td>
         </tr>
         {% endfor %}

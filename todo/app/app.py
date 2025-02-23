@@ -39,9 +39,14 @@ def init_db():
             {'order_num': 1, 'title': 'frah quintale lyrics', 'details': 'Un giorno ero a casa che stavo<br/>Con il culo sopra il divano<br/>Mezza canna spenta in una mano<br/>Non ricordo a cosa pensavo<br/>Mi son detto: "Giuro, ora la chiamo"<br/>Sta già con un altro e che strano/Lei perfetta, lui uno sfigato<br/>Ingessato tipo Ferragamo', 'importance': 'medium'},
             {'order_num': 2, 'title': 'wash the car', 'details': '', 'importance': 'high'}
         ]
-        sql = "INSERT INTO 'tasks' (order_num, title, details, importance) VALUES (?, ?, ?, ?);"
+        sql1 = "INSERT INTO 'tasks' (order_num, title, details, importance) VALUES (?, ?, ?, ?);"
         for task in data:
-            db.cursor().execute(sql, (task['order_num'], task['title'], task['details'], task['importance'],))
+            db.cursor().execute(sql1, (task['order_num'], task['title'], task['details'], task['importance'],))
+        db.commit()
+
+        sql2 = "INSERT INTO 'completed' (title, details, importance) VALUES (?, ?, ?);"
+        for task in data:
+            db.cursor().execute(sql2, (task['title'], task['details'], task['importance'],))
         db.commit()
 
 # create an application context
@@ -67,15 +72,46 @@ def add():
 def list():
     # get all users from database
     tasks = query_db('SELECT * FROM tasks')
-    return render_template('list.html', tasks=tasks)
+    completed_tasks = query_db('SELECT * FROM completed')
+    return render_template('list.html', tasks=tasks, completed = completed_tasks)
 
-@app.route('/delete/<int:id>', methods=['POST'])
+@app.route('/remove/<int:id>', methods=['POST'])
 def remove(id):
     db = get_db()
     db.cursor().execute("DELETE FROM tasks WHERE unique_id = ?", [id])
     db.commit()
     return redirect(url_for('list'))
-    
+
+@app.route('/remove_completed/<int:id>', methods=['POST'])
+def remove_completed(id):
+    db = get_db()
+    db.cursor().execute("DELETE FROM completed WHERE unique_id = ?", [id])
+    db.commit()
+    return redirect(url_for('list'))
+
+@app.route('/completed/<int:id>', methods=['POST'])
+def completed(id):
+    db = get_db()
+    db.cursor().execute("INSERT INTO completed(title, details, importance) SELECT title, details, importance FROM tasks WHERE unique_id = ? ;", [id])
+    db.cursor().execute("DELETE FROM tasks WHERE unique_id = ?", [id])
+    db.commit()
+    return redirect(url_for('list'))
+
+@app.route('/restore/<int:id>', methods=['POST'])
+def restore(id):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT MAX(order_num) FROM tasks")
+    result = cursor.fetchone()
+    if result is None or result[0] is None:
+        max_order = 0
+    else:
+        max_order = result[0] + 1
+    cursor.execute("INSERT INTO tasks (order_num, title, details, importance) SELECT ?, title, details, importance FROM completed WHERE unique_id = ?", (max_order, id))
+    db.cursor().execute("DELETE FROM completed WHERE unique_id = ?", [id])
+    db.commit()
+    return redirect(url_for('list'))
+
 
 # run the app with Docker configuration
 if __name__ == '__main__':
