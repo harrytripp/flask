@@ -60,10 +60,12 @@ def add():
     db = get_db()
     cursor = db.cursor()
     if request.method == 'POST':
+        # get input from from fields on add.html
         order_num = request.form['order_num']
         title = request.form['title']
         details = request.form['details']
         importance = request.form['importance']
+        # insert data as new row and return to index.html
         cursor.execute("INSERT INTO 'tasks' (order_num, title, details, importance) VALUES (?, ?, ?, ?);", [order_num, title, details, importance])
         db.commit()
         return render_template("index.html")
@@ -79,6 +81,7 @@ def list():
 
 @app.route('/remove/<int:id>', methods=['POST'])
 def remove(id):
+    # delete row from tasks based on unique_id
     db = get_db()
     cursor = db.cursor()
     cursor.execute("DELETE FROM tasks WHERE unique_id = ?", [id])
@@ -87,6 +90,7 @@ def remove(id):
 
 @app.route('/remove_completed/<int:id>', methods=['POST'])
 def remove_completed(id):
+    # delete row from completed tasks based on unique_id
     db = get_db()
     cursor = db.cursor()
     cursor.execute("DELETE FROM completed WHERE unique_id = ?", [id])
@@ -95,6 +99,8 @@ def remove_completed(id):
 
 @app.route('/completed/<int:id>', methods=['POST'])
 def completed(id):
+    # copy data from tasks and add to completed
+    # then delete row from tasks
     db = get_db()
     cursor = db.cursor()
     cursor.execute("INSERT INTO completed(title, details, importance) SELECT title, details, importance FROM tasks WHERE unique_id = ? ;", [id])
@@ -106,12 +112,15 @@ def completed(id):
 def restore(id):
     db = get_db()
     cursor = db.cursor()
+    # first get the next available order_num value
     cursor.execute("SELECT MAX(order_num) FROM tasks")
     result = cursor.fetchone()
     if result is None or result[0] is None:
+        # if the table is empty it will return None, so set the max_order to 0
         max_order = 0
     else:
         max_order = result[0] + 1
+    # copy data from completed into tasks, filling the order_num field with max_order. Then delete row from completed
     cursor.execute("INSERT INTO tasks (order_num, title, details, importance) SELECT ?, title, details, importance FROM completed WHERE unique_id = ?", (max_order, id))
     cursor.execute("DELETE FROM completed WHERE unique_id = ?", [id])
     db.commit()
