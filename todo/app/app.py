@@ -94,7 +94,7 @@ def remove_completed(id):
     db = get_db()
     cursor = db.cursor()
     cursor.execute("DELETE FROM completed WHERE unique_id = ?", [id])
-    cursor.commit()
+    db.commit()
     return redirect(url_for('list'))
 
 @app.route('/completed/<int:id>', methods=['POST'])
