@@ -59,14 +59,21 @@ def index():
 def add():
     db = get_db()
     cursor = db.cursor()
+    # first get the next available order_num value
+    cursor.execute("SELECT MAX(order_num) FROM tasks")
+    result = cursor.fetchone()
+    if result is None or result[0] is None:
+        # if the table is empty it will return None, so set the max_order to 1 (rather than 0, for user readability)
+        max_order = 1
+    else:
+        max_order = result[0] + 1
     if request.method == 'POST':
         # get input from from fields on add.html
-        order_num = request.form['order_num']
         title = request.form['title']
         details = request.form['details']
         importance = request.form['importance']
         # insert data as new row and return to index.html
-        cursor.execute("INSERT INTO 'tasks' (order_num, title, details, importance) VALUES (?, ?, ?, ?);", [order_num, title, details, importance])
+        cursor.execute("INSERT INTO 'tasks' (order_num, title, details, importance) VALUES (?, ?, ?, ?);", [max_order, title, details, importance])
         db.commit()
         return render_template("index.html")
     else:
